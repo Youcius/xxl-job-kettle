@@ -20,3 +20,4 @@ Thumbs.db
 
 # Dev scripts
 deploy/start-dev.bat
+BOOT-INF/
