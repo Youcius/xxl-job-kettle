@@ -1,0 +1,22 @@
+# Build
+server/xxl-job-admin/target/
+server/xxl-job-core/target/
+server/xxl-job-executor-samples/*/target/
+web/dist/
+web/node_modules/
+web/.vite/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Dev scripts
+deploy/start-dev.bat
