@@ -10,7 +10,7 @@
       <div style="display:flex;align-items:center;gap:8px">
         <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input v-model="keyword" :placeholder="t('common.search')" @input="load" /></div>
         <select v-model="fileType" @change="load" style="padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:10px;color:var(--fg);outline:none;font-family:var(--font-body);font-size:13px">
-          <option value="">All</option><option value="KTR">KTR</option><option value="KJB">KJB</option>
+          <option value="">{{ t('kettle.allFileTypes') }}</option><option value="KTR">KTR</option><option value="KJB">KJB</option>
         </select>
         <button class="btn-new" @click="triggerUpload">{{ t('kettle.uploadFile') }}</button>
       </div>
@@ -19,7 +19,7 @@
     <section class="glass-panel wide">
       <table class="gls">
         <thead>
-          <tr><th style="width:60px">ID</th><th>{{ t('kettle.file') }} Name</th><th style="width:80px">{{ t('kettle.fileType') }}</th><th style="width:80px">{{ t('kettle.fileSize') }}</th><th style="width:60px">{{ t('kettle.version') }}</th><th style="width:80px">{{ t('kettle.relatedJob') }}</th><th style="width:160px">{{ t('kettle.uploadTime') }}</th><th style="width:280px">{{ t('common.operate') }}</th></tr>
+          <tr><th style="width:60px">ID</th><th>{{ t('kettle.fileName') }}</th><th style="width:80px">{{ t('kettle.fileType') }}</th><th style="width:80px">{{ t('kettle.fileSize') }}</th><th style="width:60px">{{ t('kettle.version') }}</th><th style="width:80px">{{ t('kettle.relatedJob') }}</th><th style="width:160px">{{ t('kettle.uploadTime') }}</th><th style="width:280px">{{ t('common.operate') }}</th></tr>
         </thead>
         <tbody>
           <tr v-if="!tableData.length">
@@ -27,7 +27,7 @@
               <div class="empty-state">
                 <div class="empty-icon">📄</div>
                 <h3>{{ t('kettle.noFile') }}</h3>
-                <p>点击「{{ t('kettle.uploadFile') }}」上传 .ktr 或 .kjb 文件</p>
+                 <p>{{ t('kettle.noFileTip') }}</p>
               </div>
             </td>
           </tr>
@@ -69,6 +69,7 @@ import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { getFileList, uploadFile, deleteFile, downloadFile, createKettleJob } from '@/api/kettle'
+import { formatDateTime } from '@/utils/datetime'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -101,7 +102,8 @@ async function handleUpload(e) {
       ok++
     } catch (_) {}
   }
-  ElMessage.success(`Upload: ${ok}/${files.length}`)
+  ElMessage.success(t('kettle.uploadResult', { ok, total: files.length }))
+  e.target.value = ''
   load()
 }
 
@@ -112,12 +114,16 @@ async function handleRemove(id) {
 }
 
 function fmtSize(b) { if (!b) return '0 B'; return b < 1024 ? b+' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB' }
-function fmt(t) { if (!t) return '—'; return new Date(t).toLocaleString('zh-CN') }
+function fmt(t) { return formatDateTime(t, locale.value) }
+function buildJobName(fileName = '') {
+  const baseName = fileName.replace(/\.[^.]+$/, '').trim()
+  return baseName ? `${baseName}-job` : 'kettle-job'
+}
 async function openCreateJob(row) {
   try {
     await createKettleJob({
       fileId: row.id,
-      jobDesc: row.fileName.replace(/\.[^.]+$/, '') + '-调度任务',
+      jobDesc: buildJobName(row.fileName),
       author: 'admin',
       scheduleType: 'CRON',
       scheduleConf: '0 */5 * * * ?',

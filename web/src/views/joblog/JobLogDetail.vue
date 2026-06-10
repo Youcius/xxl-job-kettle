@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-page-header @back="$router.push('/joblog')" title="返回" content="日志详情"/>
+    <el-page-header @back="$router.push('/joblog')" :title="t('common.back')" :content="t('joblog.detail')"/>
     <el-card shadow="never" style="margin-top:16px">
       <div class="log-console" ref="logRef">
         <pre v-if="logText">{{ logText }}</pre>
-        <div v-else class="empty">加载中...</div>
+        <div v-else class="empty">{{ t('joblog.loading') }}</div>
       </div>
     </el-card>
   </div>
@@ -13,9 +13,11 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { getLogDetail } from '@/api/log'
 
 const route = useRoute()
+const { t } = useI18n()
 const logText = ref('')
 const logRef = ref()
 
@@ -23,13 +25,23 @@ onMounted(async () => {
   const id = route.params.id
   const res = await getLogDetail({ logId: id, fromLineNum: 0 })
   if (res.data?.content) {
-    logText.value = res.data.content
+    const raw = typeof res.data.content === 'string' ? res.data.content : (res.data.content.logContent || '')
+    logText.value = normalizeLog(raw)
     await nextTick()
     if (logRef.value) {
       logRef.value.scrollTop = logRef.value.scrollHeight
     }
   }
 })
+
+function normalizeLog(raw) {
+  return String(raw)
+    .replace(/&lt;br\s*\/?&gt;/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+}
 </script>
 
 <style scoped>

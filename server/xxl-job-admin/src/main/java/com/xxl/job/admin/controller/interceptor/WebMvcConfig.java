@@ -1,11 +1,26 @@
 package com.xxl.job.admin.controller.interceptor;
 
-import org.springframework.stereotype.*;
-import javax.annotation.*;
-import java.util.*;
-import java.io.*;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-public class WebMvcConfig {
-    private com.xxl.job.admin.controller.interceptor.PermissionInterceptor permissionInterceptor;
-    private com.xxl.job.admin.controller.interceptor.CookieInterceptor cookieInterceptor;
+import javax.annotation.Resource;
+
+/**
+ * web mvc config
+ *
+ * @author xuxueli 2018-04-02 20:48:20
+ */
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Resource
+    private PermissionInterceptor permissionInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**")
+                .excludePathPatterns("/index.html", "/assets/**", "/vite.svg", "/favicon.ico");
+    }
+
 }

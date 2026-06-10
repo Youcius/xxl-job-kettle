@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.xuxueli</groupId>
 		<artifactId>xxl-job</artifactId>
-		<version>3.4.1-SNAPSHOT</version>
+		<version>2.5.0</version>
 	</parent>
 	<artifactId>xxl-job-admin</artifactId>
 	<packaging>jar</packaging>
@@ -12,6 +12,18 @@
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-parent</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 
@@ -27,11 +39,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- freemarker-starter -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-freemarker</artifactId>
-		</dependency>
 		<!-- mail-starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -47,6 +54,7 @@
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
 			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>${mybatis-spring-boot-starter.version}</version>
 		</dependency>
 		<!-- mysql -->
 		<dependency>
@@ -58,12 +66,14 @@
 		<dependency>
 			<groupId>com.xuxueli</groupId>
 			<artifactId>xxl-job-core</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!-- xxl-sso -->
 		<dependency>
 			<groupId>com.xuxueli</groupId>
 			<artifactId>xxl-sso-core</artifactId>
+			<version>1.1.0</version>
 		</dependency>
 
 	</dependencies>

@@ -15,8 +15,8 @@
             <td colspan="5">
               <div class="empty-state">
                 <div class="empty-icon">📂</div>
-                <h3>还{{ t('kettle.noGroup') }}</h3>
-                <p>点击「{{ t('kettle.newGroup') }}」创建 Kettle 文件分类</p>
+                <h3>{{ t('kettle.noGroup') }}</h3>
+                <p>{{ t('kettle.noGroupTip') }}</p>
               </div>
             </td>
           </tr>
@@ -85,9 +85,10 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { getGroupList, addGroup, updateGroup, deleteGroup } from '@/api/kettle'
+import { formatDateTime } from '@/utils/datetime'
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -115,5 +116,5 @@ async function confirmDelete() {
 }
 
 function enterFiles(row) { router.push(`/kettle/file/${row.id}`) }
-function fmt(t) { if (!t) return '—'; return new Date(t).toLocaleString('zh-CN') }
+function fmt(t) { return formatDateTime(t, locale.value) }
 </script>

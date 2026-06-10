@@ -34,8 +34,8 @@
       <table v-else-if="tableData.length" class="gls">
         <thead>
           <tr>
+            <th>{{ t('joblog.logId') }}</th>
             <th>{{ t('job.jobId') }}</th>
-            <th>Job ID</th>
             <th>{{ t('group.addressList') }}</th>
             <th>{{ t('joblog.triggerTime') }}</th>
             <th>{{ t('joblog.dispatchStatus') }}</th>
@@ -81,7 +81,7 @@
 
     <!-- 分页 -->
     <div v-if="total > pageSize" class="pager">
-      <span class="pager-info">共 {{ total }} 条</span>
+      <span class="pager-info">{{ t('common.totalItems', { count: total }) }}</span>
       <div class="pager-btns">
         <button :disabled="page <= 1" @click="page--; load()">&lt;</button>
         <button
@@ -104,6 +104,7 @@ import { useI18n } from 'vue-i18n'
 import { getLogList, killJob } from '@/api/log'
 import { getGroupList } from '@/api/group'
 import EmptyState from '@/components/EmptyState.vue'
+import { formatDateTime } from '@/utils/datetime'
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -159,8 +160,7 @@ async function load() {
 function search() { page.value = 1; load() }
 
 function fmtTime(t) {
-  if (!t) return '-'
-  return new Date(t).toLocaleString('zh-CN')
+  return formatDateTime(t, locale.value)
 }
 
 function showDetail(id) {
@@ -168,7 +168,7 @@ function showDetail(id) {
 }
 
 async function handleKill(row) {
-  await killJob(row.executorAddress, row.jobId)
+  await killJob(row.executorAddress, row.id)
   ElMessage.success(t('joblog.killed'))
   load()
 }

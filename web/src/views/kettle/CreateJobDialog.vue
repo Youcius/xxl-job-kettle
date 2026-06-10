@@ -1,39 +1,39 @@
 <template>
-  <el-dialog v-model="visible" title="一键创建 Kettle 调度任务" width="560px" destroy-on-close>
+  <el-dialog v-model="visible" :title="t('kettle.createJobDialogTitle')" width="560px" destroy-on-close>
     <el-form :model="form" label-width="120px">
       <el-alert
-        :title="`将基于文件 «${props.kettleFile?.fileName || ''}» 创建 Shell 任务`"
+        :title="t('kettle.createJobAlert', { fileName: props.kettleFile?.fileName || '' })"
         type="info" :closable="false" show-icon style="margin-bottom:16px"
       />
-      <el-form-item label="任务描述">
+      <el-form-item :label="t('job.taskName')">
         <el-input v-model="form.jobDesc"/>
       </el-form-item>
-      <el-form-item label="执行器">
+      <el-form-item :label="t('job.executor')">
         <el-select v-model="form.jobGroup" style="width:100%">
           <el-option v-for="g in groups" :key="g.id" :label="g.title" :value="g.id"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="负责人">
+      <el-form-item :label="t('job.author')">
         <el-input v-model="form.author"/>
       </el-form-item>
-      <el-form-item label="Cron 表达式" required>
+      <el-form-item :label="t('job.cronExpr')" required>
         <el-input v-model="form.scheduleConf" placeholder="0 0 2 * * ?"/>
-        <div class="cron-hint">每天凌晨2点: 0 0 2 * * ? | 每小时: 0 0 * * * ?</div>
+        <div class="cron-hint">{{ t('kettle.cronHint') }}</div>
       </el-form-item>
-      <el-form-item label="运行参数">
-        <el-input v-model="form.executorParam" placeholder='如: -param:DB_HOST=192.168.1.1 -param:DB_PORT=3306'/>
-        <div class="cron-hint">可选，将传给 Kettle 的 -param 参数</div>
+      <el-form-item :label="t('job.param')">
+        <el-input v-model="form.executorParam" :placeholder="t('kettle.paramPlaceholder')"/>
+        <div class="cron-hint">{{ t('kettle.paramHint') }}</div>
       </el-form-item>
-      <el-form-item label="报警邮件">
+      <el-form-item :label="t('job.alarmEmail')">
         <el-input v-model="form.alarmEmail" placeholder="admin@example.com"/>
       </el-form-item>
-      <el-form-item label="失败重试">
+      <el-form-item :label="t('kettle.retryCount')">
         <el-input-number v-model="form.executorFailRetryCount" :min="0" :max="10"/>
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleCreate">创建任务</el-button>
+      <el-button @click="visible = false">{{ t('common.cancel') }}</el-button>
+      <el-button type="primary" :loading="submitting" @click="handleCreate">{{ t('kettle.createJob') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -41,8 +41,11 @@
 <script setup>
 import { ref, reactive, onMounted, defineProps, defineEmits, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { createKettleJob } from '@/api/kettle'
 import { getGroupList } from '@/api/group'
+
+const { t } = useI18n()
 
 const props = defineProps({
   kettleFile: { type: Object, default: () => ({}) }
@@ -89,7 +92,7 @@ async function handleCreate() {
       ...form
     })
     if (res.data?.code === 200) {
-      ElMessage.success('任务创建成功')
+      ElMessage.success(t('kettle.jobCreated'))
       visible.value = false
       emit('success')
     }

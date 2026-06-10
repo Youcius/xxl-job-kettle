@@ -1,5 +1,9 @@
 import request from './request'
 
+export function getCurrentUser() {
+  return request.get('/user/current')
+}
+
 export function getUserList(params) {
   return request.post('/user/pageList', null, { params })
 }

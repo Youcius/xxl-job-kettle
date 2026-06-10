@@ -42,7 +42,7 @@
                   <svg viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   <span class="tip">{{ t('common.edit') }}</span>
                 </button>
-                <button class="act-btn danger" @click="handleRemove(row.id)">
+                <button v-if="!isBuiltinExecutor(row)" class="act-btn danger" @click="handleRemove(row.id)">
                   <svg viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   <span class="tip">{{ t('common.delete') }}</span>
                 </button>
@@ -51,7 +51,7 @@
           </tr>
         </tbody>
       </table>
-      <EmptyState v-else title="还没有执行器" desc="点击「{{ t('group.newGroupTitle') }}」注册第一个执行器" />
+      <EmptyState v-else :title="t('group.noGroup')" :desc="t('group.noGroupTip')" />
     </div>
 
     <!-- 新增/编辑弹窗 -->
@@ -61,7 +61,7 @@
         <p class="modal-sub">{{ dialog.isEdit ? '—' : '—' }}</p>
         <div class="form-grid">
           <div class="form-group">
-            <label>AppName <span class="req">*</span></label>
+            <label>{{ t('group.appName') }} <span class="req">*</span></label>
             <input v-model="dialog.form.appname" :placeholder="t('group.appName')" />
           </div>
           <div class="form-group">
@@ -117,9 +117,13 @@ import { useI18n } from 'vue-i18n'
 import { getGroupList, saveGroup as saveGroupApi, updateGroup, removeGroup } from '@/api/group'
 import EmptyState from '@/components/EmptyState.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const tableData = ref([])
 const loading = ref(false)
+
+function isBuiltinExecutor(row) {
+  return row?.appname === 'xxl-job-executor-kettle'
+}
 
 const dialog = reactive({ visible: false, isEdit: false, form: {} })
 const confirm = reactive({ visible: false, id: null })

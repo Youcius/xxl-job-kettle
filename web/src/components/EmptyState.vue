@@ -14,22 +14,27 @@
       <line x1="32" y1="37" x2="48" y2="37" :stroke="accent" stroke-width="0.8" opacity="0.4"/>
       <line x1="32" y1="42" x2="44" y2="42" :stroke="accent" stroke-width="0.8" opacity="0.4"/>
     </svg>
-    <p class="empty-title">{{ title }}</p>
-    <p class="empty-desc">{{ desc }}</p>
+    <p class="empty-title">{{ titleText }}</p>
+    <p class="empty-desc">{{ descText }}</p>
     <slot />
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
-  title: { type: String, default: '暂无数据' },
-  desc: { type: String, default: '这里还没有内容，去创建一个吧' },
+  title: { type: String, default: '' },
+  desc: { type: String, default: '' },
   type: { type: String, default: 'default' } // default | upload | task
 })
 
 const accent = '#4a6fa5'
+const titleText = computed(() => props.title || t('common.empty'))
+const descText = computed(() => props.desc || t('common.emptyDesc'))
 
 const boxLid = computed(() => {
   if (props.type === 'upload') {

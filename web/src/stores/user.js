@@ -1,35 +1,32 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import axios from 'axios'
 import router from '@/router'
 import { login as loginApi, logout as logoutApi } from '@/api/login'
+import { getCurrentUser } from '@/api/user'
+import { setRememberedLogin } from '@/utils/rememberedLogin'
 
 export const useUserStore = defineStore('user', () => {
-  const username = ref(localStorage.getItem('xxl_user') || '')
+  const username = ref(localStorage.getItem('xxl_username') || '')
   const role = ref(Number(localStorage.getItem('xxl_role')) || 0)
-  const isLoggedIn = ref(!!localStorage.getItem('xxl_user'))
+  const isLoggedIn = ref(!!localStorage.getItem('xxl_username'))
 
   const isAdmin = () => role.value === 1
 
   async function login(form) {
     const res = await loginApi(form)
     if (res.data && res.data.code === 200) {
-      username.value = form.userName
-      isLoggedIn.value = true
-      localStorage.setItem('xxl_user', form.userName)
-      // 探测角色：用原始 axios 避免拦截器弹框
       try {
-        const r = await axios.post('/xxl-job-admin/user/pageList', null, {
-          params: { start: 0, length: 1, username: '', role: -1 },
-          withCredentials: true
-        })
-        if (r.data?.recordsTotal !== undefined) {
-          role.value = 1
-        }
+        const currentUser = await getCurrentUser()
+        username.value = currentUser.data?.data?.username || form.userName
+        role.value = Number(currentUser.data?.data?.role) || 0
       } catch (_) {
+        username.value = form.userName
         role.value = 0
       }
+      isLoggedIn.value = true
+      localStorage.setItem('xxl_username', username.value)
       localStorage.setItem('xxl_role', role.value)
+      setRememberedLogin(username.value, !!form.ifRemember)
       router.push('/dashboard')
     }
     return res
@@ -41,6 +38,7 @@ export const useUserStore = defineStore('user', () => {
     role.value = 0
     isLoggedIn.value = false
     localStorage.removeItem('xxl_user')
+    localStorage.removeItem('xxl_username')
     localStorage.removeItem('xxl_role')
     router.push('/login')
   }

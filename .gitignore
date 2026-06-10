@@ -17,6 +17,19 @@ Thumbs.db
 
 # Logs
 *.log
+.runtime-logs/
+.playwright-mcp/
+
+# Local agent/runtime config
+.opencode/
+opencode.json
+
+# Local build/debug artifacts
+*.jar
+*.tmp
+*.bak
+*.bak.*
+cfr.jar
 
 # Dev scripts
 deploy/start-dev.bat

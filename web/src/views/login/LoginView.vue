@@ -34,8 +34,9 @@
         </div>
         <label class="remember-row">
           <input type="checkbox" v-model="form.ifRemember" />
-          <span>{{ t('login.rememberMe') }}</span>
+          <span>{{ t('login.rememberUsername') }}</span>
         </label>
+        <p class="remember-hint">{{ t('login.rememberHint') }}</p>
         <button type="submit" class="login-btn" :disabled="loading">
           <span v-if="loading" class="spin-dot"></span>
           <span v-else>{{ t('login.login') }}</span>
@@ -49,17 +50,19 @@
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
+import { getRememberedLogin } from '@/utils/rememberedLogin'
 
 const { t } = useI18n()
 
 const userStore = useUserStore()
 const loading = ref(false)
 const errors = reactive({ userName: '', password: '' })
+const rememberedLogin = getRememberedLogin()
 
 const form = reactive({
-  userName: localStorage.getItem('xxl_user') || '',
+  userName: rememberedLogin.userName || localStorage.getItem('xxl_user') || '',
   password: '',
-  ifRemember: false
+  ifRemember: rememberedLogin.ifRemember
 })
 
 function validate() {
@@ -67,11 +70,11 @@ function validate() {
   errors.password = ''
   let ok = true
   if (!form.userName.trim()) {
-    errors.userName = '请输入账号'
+    errors.userName = t('login.usernameRequired')
     ok = false
   }
   if (!form.password) {
-    errors.password = '请输入密码'
+    errors.password = t('login.passwordRequired')
     ok = false
   }
   return ok
@@ -153,6 +156,11 @@ async function handleLogin() {
   width: 15px;
   height: 15px;
   cursor: pointer;
+}
+.remember-hint {
+  margin: -18px 0 20px;
+  font-size: 11px;
+  color: var(--muted);
 }
 .login-btn {
   width: 100%;

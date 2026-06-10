@@ -7,7 +7,7 @@
     <div class="shead">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div class="slogo">XXL<span>-JOB</span></div>
-        <button @click="toggleLang" class="lang-btn" :title="locale === 'zh-CN' ? 'Switch to English' : '切换到中文'">
+        <button @click="toggleLang" class="lang-btn" :title="t(locale === 'zh-CN' ? 'header.switchToEnglish' : 'header.switchToChinese')">
           {{ locale === 'zh-CN' ? 'EN' : '中' }}
         </button>
       </div>
@@ -85,6 +85,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/user'
 import { updatePwd } from '@/api/user'
 import { ElMessage } from 'element-plus'
+import router, { updateDocumentTitle } from '@/router'
 
 const { locale, t } = useI18n()
 const userStore = useUserStore()
@@ -92,6 +93,7 @@ const userStore = useUserStore()
 function toggleLang() {
   locale.value = locale.value === 'zh-CN' ? 'en' : 'zh-CN'
   localStorage.setItem('xxl_lang', locale.value)
+  updateDocumentTitle(router.currentRoute.value)
 }
 
 const pwdDialog = reactive({

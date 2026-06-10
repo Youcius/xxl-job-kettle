@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job>
+  <name>simple_test_job</name>
+  <description>Minimal smoke test job for xxl-job-kettle.</description>
+  <extended_description/>
+  <job_version/>
+  <directory>/</directory>
+  <created_user>agent</created_user>
+  <created_date>2026/06/09 00:00:00.000</created_date>
+  <modified_user>agent</modified_user>
+  <modified_date>2026/06/09 00:00:00.000</modified_date>
+  <parameters/>
+  <slaveservers/>
+  <job-log-table><connection/><schema/><table/><size_limit_lines/><interval/><timeout_days/></job-log-table>
+  <jobentry-log-table><connection/><schema/><table/><timeout_days/></jobentry-log-table>
+  <channel-log-table><connection/><schema/><table/><timeout_days/></channel-log-table>
+  <pass_batchid>Y</pass_batchid>
+  <shared_objects_file/>
+  <entries>
+    <entry>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <start>Y</start>
+      <dummy>N</dummy>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>144</xloc>
+      <yloc>144</yloc>
+      <attributes_kjc/>
+    </entry>
+    <entry>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>400</xloc>
+      <yloc>144</yloc>
+      <attributes_kjc/>
+    </entry>
+  </entries>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+  </hops>
+  <notepads/>
+  <attributes/>
+</job>

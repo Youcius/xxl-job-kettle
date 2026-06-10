@@ -52,6 +52,8 @@
 	<delete id="remove" parameterType="java.lang.Integer" >
 		DELETE FROM xxl_job_group
 		WHERE id = #{id}
+			AND id &lt;&gt; 1
+			AND app_name &lt;&gt; 'xxl-job-executor-kettle'
 	</delete>
 
 	<select id="load" parameterType="java.lang.Integer" resultMap="XxlJobGroup">

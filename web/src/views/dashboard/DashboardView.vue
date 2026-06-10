@@ -2,14 +2,13 @@
   <div>
     <div class="page-header">
       <h1><em>{{ t('dashboard.title') }}</em> {{ t('dashboard.subtitle') }}</h1>
-      <button class="btn-new" @click="$router.push('/job')">{{ t('dashboard.newJob') }}</button>
     </div>
 
     <div class="stat-row">
       <div class="stat-card">
         <div class="num" style="color:var(--accent)">{{ stats.taskCount }}</div>
         <div class="lbl">{{ t('dashboard.taskCount') }}</div>
-        <div class="delta" style="color:var(--accent)">+0 {{ locale === 'en' ? 'this week' : '本周' }}</div>
+        <div class="delta" style="color:var(--accent)">+0 {{ t('dashboard.thisWeek') }}</div>
       </div>
       <div class="stat-card">
         <div class="num" style="color:var(--success)">{{ stats.runningCount }}</div>
@@ -29,7 +28,7 @@
       <div class="stat-card">
         <div class="num" style="color:var(--accent2)">{{ stats.executorOnline }}</div>
         <div class="lbl">{{ t('dashboard.executorOnline') }}</div>
-        <div class="delta" style="color:var(--accent2)">{{ executors.length > 0 ? executors.filter(e => e.registryList).length + (locale === 'en' ? ' online' : ' 台') : '—' }}</div>
+        <div class="delta" style="color:var(--accent2)">{{ executors.length > 0 ? t('dashboard.onlineCount', { count: onlineExecutorCount }) : '—' }}</div>
       </div>
     </div>
 
@@ -37,7 +36,7 @@
       <section class="glass-panel">
         <div class="panel-hd"><span>{{ t('dashboard.recentLogs') }}</span><span class="sub">{{ t('dashboard.realtime') }}</span></div>
         <table class="gls" style="flex:1">
-          <thead><tr><th>Job ID</th><th>{{ t('job.jobName') }}</th><th>{{ t('joblog.triggerTime') }}</th><th>{{ t('joblog.execResult') }}</th><th>{{ locale === 'en' ? 'Duration' : '耗时' }}</th></tr></thead>
+          <thead><tr><th>{{ t('job.jobId') }}</th><th>{{ t('job.jobName') }}</th><th>{{ t('joblog.triggerTime') }}</th><th>{{ t('joblog.execResult') }}</th><th>{{ t('common.duration') }}</th></tr></thead>
           <tbody>
             <tr v-if="!recentLogs.length">
               <td colspan="5">
@@ -83,16 +82,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import request from '@/api/request'
+import { formatDateTime } from '@/utils/datetime'
 
 const { t, locale } = useI18n()
-import router from '@/router'
 
 const stats = reactive({ taskCount: 0, runningCount: 0, sucCount: 0, failCount: 0, executorOnline: 0 })
 const recentLogs = ref([])
 const executors = ref([])
+const onlineExecutorCount = computed(() => executors.value.filter(executor => executor.registryList?.length).length)
 
 onMounted(async () => {
   try {
@@ -137,7 +137,6 @@ onMounted(async () => {
 })
 
 function fmt(t) {
-  if (!t) return '—'
-  return new Date(t).toLocaleString('zh-CN')
+  return formatDateTime(t, locale.value)
 }
 </script>

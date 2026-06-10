@@ -109,6 +109,7 @@
           <div class="form-group"><label>{{ t('job.routeStrategy') }}</label><select v-model="dialog.form.executorRouteStrategy"><option>FIRST</option><option>LAST</option><option>ROUND</option><option>RANDOM</option><option>CONSISTENT_HASH</option><option>FAILOVER</option></select></div>
           <div class="form-group"><label>{{ t('job.blockStrategy') }}</label><select v-model="dialog.form.executorBlockStrategy"><option>SERIAL_EXECUTION</option><option>DISCARD_LATER</option><option>COVER_EARLY</option></select></div>
           <div class="form-group"><label>{{ t('job.timeout') }}</label><input v-model="dialog.form.executorTimeout" type="number" value="0" :placeholder="'0'"></div>
+          <div class="form-group"><label>{{ t('job.executorHandler') }} *</label><input v-model="dialog.form.executorHandler" :placeholder="t('job.executorHandlerPlaceholder')" maxlength="255"></div>
           <div class="form-group full"><label>{{ t('job.param') }}</label><textarea v-model="dialog.form.executorParam" :placeholder="t('job.param')" rows="2"></textarea></div>
           <div class="form-group"><label>{{ t('job.alarmEmail') }}</label><input v-model="dialog.form.alarmEmail" placeholder="user@company.com" maxlength="128"></div>
           <div class="form-group"><label>{{ t('job.childJob') }}</label><input v-model="dialog.form.childJobId" :placeholder="t('job.childJob')" maxlength="64"></div>
@@ -143,7 +144,7 @@ import { useI18n } from 'vue-i18n'
 import { getJobList, addJob, updateJob, removeJob, startJob as startJobApi, stopJob as stopJobApi, triggerJob } from '@/api/job'
 import { getGroupList } from '@/api/group'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const groups = ref([])
 const tableData = ref([])
 const total = ref(0)
@@ -166,7 +167,7 @@ const cronExpr = computed(() =>
 
 const cronDesc = computed(() => describeCron(cronExpr.value))
 
-const presets = [
+const presets = computed(() => [
   { label: t('job.cronPresets.everyMin'), cron: '0 */1 * * * ?' },
   { label: t('job.cronPresets.every5Min'), cron: '0 */5 * * * ?' },
   { label: t('job.cronPresets.every10Min'), cron: '0 */10 * * * ?' },
@@ -175,7 +176,7 @@ const presets = [
   { label: t('job.cronPresets.at7am'), cron: '0 0 7 * * ?' },
   { label: t('job.cronPresets.workday'), cron: '0 30 9 * * 1-5' },
   { label: t('job.cronPresets.midnight'), cron: '0 0 0 * * ?' },
-];
+])
 
 function applyCron(cron) {
   const s = cron.split(/\s+/)
@@ -185,7 +186,7 @@ function applyCron(cron) {
 
 function describeCron(cron) {
   const s = cron.split(/\s+/)
-  if (s.length < 6) return 'Invalid'
+  if (s.length < 6) return t('job.invalidCron')
   if (s[1] === '*/1' && s[0] === '0') return t('job.cronPresets.everyMin')
   if (s[1].startsWith('*/')) {
     const m = parseInt(s[1].split('/')[1])
@@ -215,16 +216,37 @@ async function load() {
 
 function search() { load() }
 
+function buildJobForm(source = {}) {
+  return {
+    id: source.id,
+    jobGroup: source.jobGroup || groups.value[0]?.id || 1,
+    jobDesc: source.jobDesc || '',
+    author: source.author || 'admin',
+    scheduleType: source.scheduleType || 'CRON',
+    scheduleConf: source.scheduleConf || '0 */1 * * * ?',
+    executorRouteStrategy: source.executorRouteStrategy || 'FIRST',
+    executorBlockStrategy: source.executorBlockStrategy || 'SERIAL_EXECUTION',
+    executorTimeout: source.executorTimeout ?? '0',
+    executorFailRetryCount: source.executorFailRetryCount ?? '0',
+    executorParam: source.executorParam || '',
+    alarmEmail: source.alarmEmail || '',
+    childJobId: source.childJobId || '',
+    glueType: source.glueType || 'BEAN',
+    executorHandler: source.executorHandler || '',
+    misfireStrategy: source.misfireStrategy || 'DO_NOTHING'
+  }
+}
+
 function showAdd() {
   dialog.isEdit = false
-  dialog.form = { jobGroup: groups.value[0]?.id || 1, jobDesc: '', author: 'admin', scheduleType: 'CRON', executorRouteStrategy: 'FIRST', executorBlockStrategy: 'SERIAL_EXECUTION', executorTimeout: '0', executorFailRetryCount: '0', executorParam: '', alarmEmail: '', childJobId: '', glueType: 'BEAN', executorHandler: '', misfireStrategy: 'DO_NOTHING' }
+  dialog.form = buildJobForm()
   applyCron('0 */1 * * * ?')
   dialog.visible = true
 }
 
 function showEdit(row) {
   dialog.isEdit = true
-  dialog.form = { ...row }
+  dialog.form = buildJobForm(row)
   if (row.scheduleConf) {
     try { applyCron(row.scheduleConf) } catch (_) { applyCron('0 */1 * * * ?') }
   }
@@ -233,10 +255,14 @@ function showEdit(row) {
 
 async function saveJob() {
   dialog.form.scheduleConf = cronExpr.value
-  dialog.form.executorHandler = dialog.form.executorHandler || 'demoJobHandler'
+  if (!dialog.form.executorHandler || !dialog.form.executorHandler.trim()) {
+    ElMessage.error(t('job.executorHandlerRequired'))
+    return
+  }
+  dialog.form.executorHandler = dialog.form.executorHandler.trim()
   try {
     const apiFn = dialog.isEdit ? updateJob : addJob
-    await apiFn(dialog.form)
+    await apiFn(buildJobForm(dialog.form))
     ElMessage({ message: t('job.saved'), type: 'success' })
     dialog.visible = false
     load()

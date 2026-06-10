@@ -1,14 +1,22 @@
 package com.xxl.job.admin.core.trigger;
 
-import java.util.*;
-import java.io.*;
+import com.xxl.job.admin.core.util.I18nUtil;
 
-public class TriggerTypeEnum {
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum MANUAL;
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum CRON;
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum RETRY;
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum PARENT;
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum API;
-    public static final com.xxl.job.admin.core.trigger.TriggerTypeEnum MISFIRE;
+public enum TriggerTypeEnum {
+    MANUAL(I18nUtil.getString("jobconf_trigger_type_manual")),
+    CRON(I18nUtil.getString("jobconf_trigger_type_cron")),
+    RETRY(I18nUtil.getString("jobconf_trigger_type_retry")),
+    PARENT(I18nUtil.getString("jobconf_trigger_type_parent")),
+    API(I18nUtil.getString("jobconf_trigger_type_api")),
+    MISFIRE(I18nUtil.getString("jobconf_trigger_type_misfire"));
+
     private java.lang.String title;
+
+    TriggerTypeEnum(String title) {
+        this.title = title;
+    }
+
+    public java.lang.String getTitle() {
+        return title;
+    }
 }
